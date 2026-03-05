@@ -1,0 +1,9 @@
+export 'profile.dart';
+export 'companion.dart';
+export 'conversation.dart';
+export 'message.dart';
+export 'companion_memory.dart';
+export 'milestone.dart';
+export 'ai_change_log.dart';
+export 'user_knowledge.dart';
+export 'routine_log.dart';

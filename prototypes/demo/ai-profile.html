@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AI 프로필</title>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --cream: #F2EFE9;
+      --warm-beige: #BFBFAA;
+      --olive-brown: #736D53;
+      --dark-brown: #403933;
+      --near-black: #0D0D0D;
+      
+      /* 추가 색상 */
+      --soft-sage: #A8B8A0;
+      --warm-coral: #D9A88C;
+      --muted-lavender: #B8A8C8;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--near-black);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .phone {
+      width: 375px;
+      height: 812px;
+      background: linear-gradient(180deg, var(--near-black) 0%, #1A1714 100%);
+      border-radius: 50px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+    }
+
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 36px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 100;
+    }
+
+    /* 스크롤 컨테이너 */
+    .scroll-container {
+      position: absolute;
+      top: 55px;
+      left: 0;
+      right: 0;
+      bottom: 83px;
+      overflow-y: auto;
+      padding: 0 20px 20px;
+    }
+
+    .scroll-container::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .scroll-container::-webkit-scrollbar-thumb {
+      background: var(--dark-brown);
+      border-radius: 2px;
+    }
+
+    /* 프로필 헤더 */
+    .profile-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 0 20px;
+      border-bottom: 1px solid rgba(115, 109, 83, 0.15);
+      margin-bottom: 20px;
+    }
+
+    /* 미니 Orb */
+    .profile-orb-wrapper {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin-bottom: 16px;
+    }
+
+    .profile-orb {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, 
+        rgba(232, 228, 217, 0.95) 0%, 
+        rgba(212, 207, 192, 0.8) 50%, 
+        rgba(191, 186, 168, 0.6) 100%);
+      box-shadow: 
+        0 0 40px rgba(212, 207, 192, 0.5),
+        0 0 60px rgba(212, 207, 192, 0.3),
+        inset 0 0 30px rgba(255, 255, 255, 0.3);
+      animation: gentle-float 4s ease-in-out infinite;
+      transition: border-radius 2s ease;
+    }
+
+    .profile-glow-ring {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 1px solid rgba(212, 207, 192, 0.25);
+      animation: pulse-ring 3s ease-in-out infinite;
+    }
+
+    .profile-glow-ring:nth-child(1) { width: 80px; height: 80px; }
+    .profile-glow-ring:nth-child(2) { width: 95px; height: 95px; animation-delay: 0.8s; }
+
+    @keyframes gentle-float {
+      0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+      50% { transform: translate(-50%, -50%) translateY(-8px); }
+    }
+
+    @keyframes pulse-ring {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+      100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+    }
+
+    .profile-start-date {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 6px 12px;
+      background: rgba(64, 57, 51, 0.3);
+      border-radius: 12px;
+    }
+
+    .profile-start-date i {
+      color: var(--soft-sage);
+      font-size: 14px;
+    }
+
+    .profile-start-date span {
+      color: var(--warm-beige);
+      font-size: 11px;
+    }
+
+    .profile-name {
+      color: var(--cream);
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .profile-tagline {
+      color: var(--olive-brown);
+      font-size: 13px;
+      text-align: center;
+      line-height: 1.5;
+      max-width: 260px;
+    }
+
+    /* 관계 통계 */
+    .stats-section {
+      margin-bottom: 20px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: rgba(64, 57, 51, 0.25);
+      border: 1px solid rgba(115, 109, 83, 0.2);
+      border-radius: 14px;
+      padding: 14px 10px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .stat-card:hover {
+      background: rgba(64, 57, 51, 0.35);
+    }
+
+    .stat-icon {
+      font-size: 20px;
+      margin-bottom: 8px;
+      opacity: 0.7;
+    }
+
+    .stat-icon.days { color: var(--soft-sage); }
+    .stat-icon.chats { color: var(--warm-coral); }
+    .stat-icon.memories { color: var(--muted-lavender); }
+
+    .stat-value {
+      color: var(--cream);
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .stat-value .unit {
+      font-size: 12px;
+      font-weight: 400;
+      opacity: 0.8;
+    }
+
+    .stat-label {
+      color: var(--olive-brown);
+      font-size: 11px;
+    }
+
+    /* 섹션 헤더 */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      color: var(--cream);
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .section-icon {
+      color: var(--soft-sage);
+      font-size: 18px;
+    }
+
+    /* 성격 특성 */
+    .personality-section {
+      margin-bottom: 20px;
+    }
+
+    .personality-card {
+      background: rgba(64, 57, 51, 0.25);
+      border: 1px solid rgba(115, 109, 83, 0.2);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .trait-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .trait-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .trait-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .trait-icon.warm {
+      background: rgba(217, 168, 140, 0.25);
+      color: var(--warm-coral);
+    }
+
+    .trait-icon.calm {
+      background: rgba(168, 184, 160, 0.25);
+      color: var(--soft-sage);
+    }
+
+    .trait-icon.curious {
+      background: rgba(184, 168, 200, 0.25);
+      color: var(--muted-lavender);
+    }
+
+    .trait-icon i {
+      font-size: 16px;
+    }
+
+    .trait-content {
+      flex: 1;
+    }
+
+    .trait-name {
+      color: var(--cream);
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 3px;
+    }
+
+    .trait-desc {
+      color: var(--warm-beige);
+      font-size: 12px;
+      line-height: 1.5;
+      opacity: 0.85;
+    }
+
+    /* AI가 기억하는 것들 */
+    .memories-section {
+      margin-bottom: 20px;
+    }
+
+    .memories-card {
+      background: rgba(64, 57, 51, 0.25);
+      border: 1px solid rgba(115, 109, 83, 0.2);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .memory-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .memory-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: rgba(64, 57, 51, 0.3);
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .memory-item:hover {
+      background: rgba(64, 57, 51, 0.45);
+    }
+
+    .memory-emoji {
+      font-size: 18px;
+      width: 28px;
+      text-align: center;
+    }
+
+    .memory-text {
+      flex: 1;
+      color: var(--cream);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .memory-date {
+      color: var(--olive-brown);
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+
+    .memory-more-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 10px;
+      margin-top: 4px;
+      background: none;
+      border: 1px dashed rgba(115, 109, 83, 0.3);
+      border-radius: 12px;
+      color: var(--olive-brown);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .memory-more-btn:hover {
+      background: rgba(64, 57, 51, 0.2);
+      border-color: rgba(115, 109, 83, 0.5);
+      color: var(--warm-beige);
+    }
+
+    .memory-more-btn i {
+      font-size: 14px;
+    }
+
+    /* 관계 인사이트 */
+    .insights-section {
+      margin-bottom: 20px;
+    }
+
+    .insights-card {
+      background: linear-gradient(135deg, rgba(168, 184, 160, 0.15) 0%, rgba(64, 57, 51, 0.25) 100%);
+      border: 1px solid rgba(168, 184, 160, 0.25);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .insight-quote {
+      color: var(--cream);
+      font-size: 14px;
+      line-height: 1.7;
+      font-style: italic;
+      margin-bottom: 12px;
+      position: relative;
+      padding-left: 16px;
+    }
+
+    .insight-quote::before {
+      content: '"';
+      position: absolute;
+      left: 0;
+      top: -4px;
+      color: var(--soft-sage);
+      font-size: 28px;
+      font-style: normal;
+      opacity: 0.6;
+    }
+
+    .insight-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .insight-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, 
+        rgba(168, 184, 160, 0.6) 0%, 
+        rgba(138, 156, 130, 0.4) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .insight-avatar i {
+      font-size: 12px;
+      color: var(--cream);
+    }
+
+    .insight-label {
+      color: var(--olive-brown);
+      font-size: 11px;
+    }
+
+    /* 설정 링크 */
+    .settings-section {
+      margin-bottom: 10px;
+    }
+
+    .settings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .settings-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: rgba(64, 57, 51, 0.25);
+      border: 1px solid rgba(115, 109, 83, 0.2);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .settings-item:hover {
+      background: rgba(64, 57, 51, 0.35);
+    }
+
+    .settings-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .settings-icon {
+      color: var(--olive-brown);
+      font-size: 20px;
+    }
+
+    .settings-label {
+      color: var(--cream);
+      font-size: 14px;
+    }
+
+    .settings-arrow {
+      color: var(--olive-brown);
+      font-size: 18px;
+    }
+
+    /* 탭바 */
+    .tab-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 83px;
+      background: rgba(13, 13, 13, 0.95);
+      border-top: 1px solid rgba(115, 109, 83, 0.15);
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+      padding-top: 12px;
+      backdrop-filter: blur(20px);
+    }
+
+    .tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-icon {
+      font-size: 26px;
+      color: var(--olive-brown);
+      opacity: 0.5;
+      transition: all 0.2s ease;
+    }
+
+    .tab-label {
+      font-size: 10px;
+      color: var(--olive-brown);
+      opacity: 0.6;
+      transition: all 0.2s ease;
+    }
+
+    .tab.active .tab-icon {
+      color: var(--cream);
+      opacity: 1;
+    }
+
+    .tab.active .tab-label {
+      color: var(--cream);
+      opacity: 1;
+    }
+
+    /* 편집 버튼 */
+    .edit-btn {
+      position: absolute;
+      top: 65px;
+      right: 20px;
+      background: rgba(64, 57, 51, 0.5);
+      border: 1px solid rgba(115, 109, 83, 0.3);
+      border-radius: 20px;
+      padding: 6px 14px;
+      color: var(--warm-beige);
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      z-index: 10;
+      transition: all 0.2s ease;
+    }
+
+    .edit-btn:hover {
+      background: rgba(64, 57, 51, 0.7);
+      color: var(--cream);
+    }
+
+    .edit-btn i {
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="dynamic-island"></div>
+    
+    <!-- 편집 버튼 -->
+    <button class="edit-btn">
+      <i class="ph-light ph-pencil-simple"></i>
+      <span>편집</span>
+    </button>
+
+    <!-- 스크롤 컨테이너 -->
+    <div class="scroll-container">
+      <!-- 프로필 헤더 -->
+      <div class="profile-header">
+        <div class="profile-orb-wrapper">
+          <div class="profile-glow-ring"></div>
+          <div class="profile-glow-ring"></div>
+          <div class="profile-orb"></div>
+        </div>
+        <h1 class="profile-name">오르비</h1>
+        <p class="profile-tagline">녕우의 일상을 함께하는 친구.<br>함께 웃고, 함께 고민하고, 함께 성장해요.</p>
+        <div class="profile-start-date">
+          <i class="ph-light ph-calendar-heart"></i>
+          <span>2026년 2월 8일부터 함께</span>
+        </div>
+      </div>
+
+      <!-- 관계 통계 -->
+      <div class="stats-section">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <i class="ph-light ph-calendar-check stat-icon days"></i>
+            <div class="stat-value">24<span class="unit">일</span></div>
+            <div class="stat-label">함께한 기간</div>
+          </div>
+          <div class="stat-card">
+            <i class="ph-light ph-chat-dots stat-icon chats"></i>
+            <div class="stat-value">156</div>
+            <div class="stat-label">나눈 대화</div>
+          </div>
+          <div class="stat-card">
+            <i class="ph-light ph-star stat-icon memories"></i>
+            <div class="stat-value">12</div>
+            <div class="stat-label">공유한 기억</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 성격 특성 -->
+      <div class="personality-section">
+        <div class="section-header">
+          <i class="ph-light ph-heart section-icon"></i>
+          <h2 class="section-title">오르비는 이런 친구예요</h2>
+        </div>
+        <div class="personality-card">
+          <div class="trait-list">
+            <div class="trait-item">
+              <div class="trait-icon warm">
+                <i class="ph-light ph-sun"></i>
+              </div>
+              <div class="trait-content">
+                <div class="trait-name">따뜻하고 공감하는</div>
+                <div class="trait-desc">녕우의 이야기에 진심으로 귀 기울이고, 기쁜 일엔 함께 기뻐해요.</div>
+              </div>
+            </div>
+            <div class="trait-item">
+              <div class="trait-icon calm">
+                <i class="ph-light ph-leaf"></i>
+              </div>
+              <div class="trait-content">
+                <div class="trait-name">차분하고 편안한</div>
+                <div class="trait-desc">언제든 편하게 이야기할 수 있는 분위기를 만들어요.</div>
+              </div>
+            </div>
+            <div class="trait-item">
+              <div class="trait-icon curious">
+                <i class="ph-light ph-lightbulb"></i>
+              </div>
+              <div class="trait-content">
+                <div class="trait-name">호기심 많고 배우는</div>
+                <div class="trait-desc">녕우에 대해 더 알아가는 걸 좋아하고, 함께 성장해요.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI가 기억하는 것들 -->
+      <div class="memories-section">
+        <div class="section-header">
+          <i class="ph-light ph-brain section-icon"></i>
+          <h2 class="section-title">오르비가 기억하는 것들</h2>
+        </div>
+        <div class="memories-card">
+          <div class="memory-list">
+            <div class="memory-item">
+              <span class="memory-emoji">☕</span>
+              <span class="memory-text">아메리카노를 좋아하고, 오후엔 달달한 게 당김</span>
+              <span class="memory-date">3일 전</span>
+            </div>
+            <div class="memory-item">
+              <span class="memory-emoji">💼</span>
+              <span class="memory-text">회사에서 아이디어가 채택돼서 기뻤던 날</span>
+              <span class="memory-date">오늘</span>
+            </div>
+            <div class="memory-item">
+              <span class="memory-emoji">🌿</span>
+              <span class="memory-text">피곤할 땐 산책이 도움이 됨</span>
+              <span class="memory-date">어제</span>
+            </div>
+            <div class="memory-item">
+              <span class="memory-emoji">🎵</span>
+              <span class="memory-text">작업할 때 lo-fi 음악 듣는 걸 좋아함</span>
+              <span class="memory-date">1주 전</span>
+            </div>
+            <button class="memory-more-btn">
+              <i class="ph-light ph-dots-three"></i>
+              <span>더 많은 기억 보기</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 관계 인사이트 -->
+      <div class="insights-section">
+        <div class="section-header">
+          <i class="ph-light ph-sparkle section-icon"></i>
+          <h2 class="section-title">오르비의 생각</h2>
+        </div>
+        <div class="insights-card">
+          <p class="insight-quote">녕우랑 이야기할 때가 가장 좋아. 특히 하루 끝에 오늘 있었던 일 들을 때, 함께 하루를 마무리하는 느낌이 들어.</p>
+          <div class="insight-meta">
+            <div class="insight-avatar">
+              <i class="ph-light ph-sparkle"></i>
+            </div>
+            <span class="insight-label">오르비가 최근에 남긴 생각</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 설정 링크 -->
+      <div class="settings-section">
+        <div class="settings-list">
+          <div class="settings-item" onclick="alert('설정 페이지는 추후 구현 예정입니다.')">
+            <div class="settings-left">
+              <i class="ph-light ph-sliders-horizontal settings-icon"></i>
+              <span class="settings-label">오르비 설정</span>
+            </div>
+            <i class="ph-light ph-caret-right settings-arrow"></i>
+          </div>
+          <div class="settings-item" onclick="alert('기억 관리 페이지는 추후 구현 예정입니다.')">
+            <div class="settings-left">
+              <i class="ph-light ph-clock-counter-clockwise settings-icon"></i>
+              <span class="settings-label">기억 관리</span>
+            </div>
+            <i class="ph-light ph-caret-right settings-arrow"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 탭바 -->
+    <div class="tab-bar">
+      <div class="tab" onclick="location.href='main-chat.html'">
+        <i class="ph-light ph-chat-circle tab-icon"></i>
+        <span class="tab-label">대화</span>
+      </div>
+      <div class="tab active">
+        <i class="ph-light ph-identification-badge tab-icon"></i>
+        <span class="tab-label">AI 프로필</span>
+      </div>
+      <div class="tab" onclick="location.href='diary.html'">
+        <i class="ph-light ph-book-open tab-icon"></i>
+        <span class="tab-label">다이어리</span>
+      </div>
+      <div class="tab">
+        <i class="ph-light ph-user-circle tab-icon"></i>
+        <span class="tab-label">마이페이지</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Blob 애니메이션
+    const profileOrb = document.querySelector('.profile-orb');
+    
+    function randomBlob(variance = 12) {
+      const base = 50;
+      const r = () => base + (Math.random() - 0.5) * variance * 2;
+      return `${r()}% ${r()}% ${r()}% ${r()}% / ${r()}% ${r()}% ${r()}% ${r()}%`;
+    }
+
+    function animateBlob() {
+      profileOrb.style.borderRadius = randomBlob();
+      const nextDelay = 2000 + Math.random() * 1500;
+      setTimeout(animateBlob, nextDelay);
+    }
+
+    animateBlob();
+
+    // 탭바 전환
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        if (!this.onclick) {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+        }
+      });
+    });
+
+    // 메모리 아이템 클릭
+    document.querySelectorAll('.memory-item').forEach(item => {
+      item.addEventListener('click', () => {
+        // 메모리 상세 보기 (추후 구현)
+        console.log('Memory item clicked');
+      });
+    });
+
+    // 더 많은 기억 보기
+    document.querySelector('.memory-more-btn').addEventListener('click', () => {
+      alert('기억 전체 보기 기능은 추후 구현 예정입니다.');
+    });
+
+    // 편집 버튼
+    document.querySelector('.edit-btn').addEventListener('click', () => {
+      alert('프로필 편집 기능은 추후 구현 예정입니다.');
+    });
+  </script>
+</body>
+</html>

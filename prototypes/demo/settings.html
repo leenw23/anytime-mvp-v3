@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>설정 - 마이페이지</title>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --cream: #F2EFE9;
+      --warm-beige: #BFBFAA;
+      --olive-brown: #736D53;
+      --dark-brown: #403933;
+      --near-black: #0D0D0D;
+      --section-bg: rgba(64, 57, 51, 0.25);
+      --item-hover: rgba(64, 57, 51, 0.4);
+      --border-color: rgba(115, 109, 83, 0.15);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--near-black);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .phone {
+      width: 375px;
+      height: 812px;
+      background: linear-gradient(180deg, var(--near-black) 0%, #1A1714 100%);
+      border-radius: 50px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+    }
+
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 36px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 100;
+    }
+
+    /* 헤더 */
+    .header {
+      position: absolute;
+      top: 60px;
+      left: 0;
+      right: 0;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .header-title {
+      color: var(--cream);
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* 스크롤 컨텐츠 */
+    .content {
+      position: absolute;
+      top: 100px;
+      left: 0;
+      right: 0;
+      bottom: 83px;
+      overflow-y: auto;
+      padding: 16px 20px;
+    }
+
+    .content::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .content::-webkit-scrollbar-thumb {
+      background: var(--dark-brown);
+      border-radius: 2px;
+    }
+
+    /* 프로필 섹션 */
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+      background: var(--section-bg);
+      border-radius: 16px;
+      margin-bottom: 24px;
+    }
+
+    .profile-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--olive-brown) 0%, var(--dark-brown) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: var(--cream);
+    }
+
+    .avatar-initial {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--cream);
+    }
+
+    .profile-info {
+      flex: 1;
+    }
+
+    .profile-name {
+      color: var(--cream);
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .profile-meta {
+      color: var(--olive-brown);
+      font-size: 13px;
+    }
+
+    .profile-edit-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(115, 109, 83, 0.3);
+      border: none;
+      color: var(--cream);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .profile-edit-btn:hover {
+      background: rgba(115, 109, 83, 0.5);
+    }
+
+    /* 대화 통계 */
+    .stats-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 20px 16px;
+      background: var(--section-bg);
+      border-radius: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-item {
+      text-align: center;
+      flex: 1;
+    }
+
+    .stat-value {
+      color: var(--cream);
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      color: var(--olive-brown);
+      font-size: 11px;
+    }
+
+    .stat-divider {
+      width: 1px;
+      height: 36px;
+      background: var(--border-color);
+    }
+
+    /* 섹션 */
+    .section {
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      color: var(--olive-brown);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+
+    .section-card {
+      background: var(--section-bg);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    /* 설정 아이템 */
+    .setting-item {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+
+    .setting-item:hover {
+      background: var(--item-hover);
+    }
+
+    .setting-item:active {
+      background: rgba(115, 109, 83, 0.3);
+    }
+
+    .setting-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-right: 14px;
+    }
+
+    .setting-icon.purple { background: rgba(147, 112, 219, 0.25); color: #9370DB; }
+    .setting-icon.blue { background: rgba(100, 149, 237, 0.25); color: #6495ED; }
+    .setting-icon.green { background: rgba(144, 238, 144, 0.25); color: #90EE90; }
+    .setting-icon.orange { background: rgba(255, 165, 0, 0.25); color: #FFA500; }
+    .setting-icon.red { background: rgba(255, 99, 71, 0.25); color: #FF6347; }
+    .setting-icon.gray { background: rgba(169, 169, 169, 0.25); color: #A9A9A9; }
+
+    .setting-content {
+      flex: 1;
+    }
+
+    .setting-label {
+      color: var(--cream);
+      font-size: 15px;
+      margin-bottom: 2px;
+    }
+
+    .setting-sublabel {
+      color: var(--olive-brown);
+      font-size: 12px;
+    }
+
+    .setting-value {
+      color: var(--olive-brown);
+      font-size: 14px;
+      margin-right: 8px;
+    }
+
+    .setting-arrow {
+      color: var(--olive-brown);
+      font-size: 18px;
+      opacity: 0.5;
+    }
+
+    /* 토글 스위치 */
+    .toggle-switch {
+      position: relative;
+      width: 51px;
+      height: 31px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(115, 109, 83, 0.3);
+      transition: 0.3s;
+      border-radius: 31px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 27px;
+      width: 27px;
+      left: 2px;
+      bottom: 2px;
+      background-color: var(--cream);
+      transition: 0.3s;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background-color: rgba(191, 191, 170, 0.7);
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+
+    /* 방해금지 시간 설정 */
+    .time-picker-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .time-picker-row:last-child {
+      border-bottom: none;
+    }
+
+    .time-picker-label {
+      color: var(--cream);
+      font-size: 15px;
+    }
+
+    .time-picker-value {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(115, 109, 83, 0.2);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .time-picker-value:hover {
+      background: rgba(115, 109, 83, 0.35);
+    }
+
+    .time-picker-value span {
+      color: var(--cream);
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    /* 버전 정보 */
+    .version-info {
+      text-align: center;
+      padding: 20px;
+      color: var(--olive-brown);
+      font-size: 12px;
+    }
+
+    .version-info .app-name {
+      font-size: 14px;
+      color: var(--warm-beige);
+      margin-bottom: 4px;
+    }
+
+    /* 로그아웃 버튼 */
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 16px;
+      background: rgba(255, 99, 71, 0.15);
+      border: none;
+      border-radius: 16px;
+      color: #FF6347;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-bottom: 16px;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 99, 71, 0.25);
+    }
+
+    /* 탭바 */
+    .tab-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 83px;
+      background: rgba(13, 13, 13, 0.95);
+      border-top: 1px solid rgba(115, 109, 83, 0.15);
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+      padding-top: 12px;
+      backdrop-filter: blur(20px);
+    }
+
+    .tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-icon {
+      font-size: 26px;
+      color: var(--olive-brown);
+      opacity: 0.5;
+      transition: all 0.2s ease;
+    }
+
+    .tab-label {
+      font-size: 10px;
+      color: var(--olive-brown);
+      opacity: 0.6;
+      transition: all 0.2s ease;
+    }
+
+    .tab.active .tab-icon {
+      color: var(--cream);
+      opacity: 1;
+    }
+
+    .tab.active .tab-label {
+      color: var(--cream);
+      opacity: 1;
+    }
+
+    /* 모달 오버레이 */
+    .modal-overlay {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 200;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .time-modal {
+      width: 100%;
+      background: #1A1714;
+      border-radius: 20px 20px 0 0;
+      padding: 20px;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .time-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .time-modal-cancel {
+      background: none;
+      border: none;
+      color: var(--olive-brown);
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .time-modal-title {
+      color: var(--cream);
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .time-modal-done {
+      background: none;
+      border: none;
+      color: var(--warm-beige);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .time-picker-wheels {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 20px 0;
+    }
+
+    .wheel-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .wheel-label {
+      color: var(--olive-brown);
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+
+    .wheel-select {
+      appearance: none;
+      background: rgba(64, 57, 51, 0.4);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--cream);
+      font-size: 20px;
+      font-weight: 500;
+      padding: 12px 20px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .wheel-select:focus {
+      outline: none;
+      border-color: rgba(191, 191, 170, 0.5);
+    }
+
+    .wheel-colon {
+      font-size: 24px;
+      color: var(--cream);
+      padding-top: 28px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="dynamic-island"></div>
+    
+    <!-- 헤더 -->
+    <div class="header">
+      <span class="header-title">마이페이지</span>
+    </div>
+
+    <!-- 컨텐츠 -->
+    <div class="content">
+      <!-- 프로필 섹션 -->
+      <div class="profile-section">
+        <div class="profile-avatar">
+          <span class="avatar-initial">녕</span>
+        </div>
+        <div class="profile-info">
+          <div class="profile-name">녕우</div>
+          <div class="profile-meta">2026년 3월 1일 가입 · 3일째 함께하는 중</div>
+        </div>
+        <button class="profile-edit-btn">
+          <i class="ph-light ph-pencil-simple"></i>
+        </button>
+      </div>
+
+      <!-- 대화 통계 -->
+      <div class="stats-section">
+        <div class="stat-item">
+          <div class="stat-value">47</div>
+          <div class="stat-label">총 대화 수</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-value">3일</div>
+          <div class="stat-label">연속 대화</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-value">2.5h</div>
+          <div class="stat-label">총 대화 시간</div>
+        </div>
+      </div>
+
+      <!-- 방해금지 설정 -->
+      <div class="section">
+        <div class="section-title">방해금지 모드</div>
+        <div class="section-card">
+          <div class="setting-item">
+            <div class="setting-icon purple">
+              <i class="ph-light ph-moon"></i>
+            </div>
+            <div class="setting-content">
+              <div class="setting-label">방해금지 모드</div>
+              <div class="setting-sublabel">설정된 시간에 알림을 받지 않아요</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="dndToggle" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="time-picker-row" id="dndStartRow">
+            <span class="time-picker-label">시작 시간</span>
+            <div class="time-picker-value" onclick="openTimePicker('start')">
+              <span id="startTimeDisplay">오전 12:00</span>
+              <i class="ph-light ph-caret-right" style="font-size: 14px; color: var(--olive-brown);"></i>
+            </div>
+          </div>
+          <div class="time-picker-row" id="dndEndRow">
+            <span class="time-picker-label">종료 시간</span>
+            <div class="time-picker-value" onclick="openTimePicker('end')">
+              <span id="endTimeDisplay">오전 10:00</span>
+              <i class="ph-light ph-caret-right" style="font-size: 14px; color: var(--olive-brown);"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 알림 설정 -->
+      <div class="section">
+        <div class="section-title">알림</div>
+        <div class="section-card">
+          <div class="setting-item">
+            <div class="setting-icon blue">
+              <i class="ph-light ph-bell"></i>
+            </div>
+            <div class="setting-content">
+              <div class="setting-label">푸시 알림</div>
+              <div class="setting-sublabel">AI 친구의 메시지를 알림으로 받아요</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-item">
+            <div class="setting-icon green">
+              <i class="ph-light ph-chat-dots"></i>
+            </div>
+            <div class="setting-content">
+              <div class="setting-label">먼저 말걸기</div>
+              <div class="setting-sublabel">AI가 먼저 대화를 시작할 수 있어요</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 계정 설정 -->
+      <div class="section">
+        <div class="section-title">계정</div>
+        <div class="section-card">
+          <div class="setting-item">
+            <div class="setting-icon orange">
+              <i class="ph-light ph-envelope"></i>
+            </div>
+            <div class="setting-content">
+              <div class="setting-label">이메일</div>
+            </div>
+            <span class="setting-value">nya***@gmail.com</span>
+            <i class="ph-light ph-caret-right setting-arrow"></i>
+          </div>
+          <div class="setting-item">
+            <div class="setting-icon gray">
+              <i class="ph-light ph-lock"></i>
+            </div>
+            <div class="setting-content">
+              <div class="setting-label">비밀번호 변경</div>
+            </div>
+            <i class="ph-light ph-caret-right setting-arrow"></i>
+          </div>
+          <div class="setting-item">
+            <div class="setting-icon red">
+              <i class="ph-light ph-trash"></i>
+            </div>
+            <div class="setting-content">
+              <div class="setting-label">대화 기록 삭제</div>
+              <div class="setting-sublabel">모든 대화 내용이 삭제돼요</div>
+            </div>
+            <i class="ph-light ph-caret-right setting-arrow"></i>
+          </div>
+          <div class="setting-item">
+            <div class="setting-icon red">
+              <i class="ph-light ph-user-minus"></i>
+            </div>
+            <div class="setting-content">
+              <div class="setting-label">계정 탈퇴</div>
+              <div class="setting-sublabel">모든 데이터가 영구 삭제돼요</div>
+            </div>
+            <i class="ph-light ph-caret-right setting-arrow"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- 지원 -->
+      <div class="section">
+        <div class="section-title">지원</div>
+        <div class="section-card">
+          <div class="setting-item">
+            <div class="setting-icon blue">
+              <i class="ph-light ph-question"></i>
+            </div>
+            <div class="setting-content">
+              <div class="setting-label">자주 묻는 질문</div>
+            </div>
+            <i class="ph-light ph-caret-right setting-arrow"></i>
+          </div>
+          <div class="setting-item">
+            <div class="setting-icon green">
+              <i class="ph-light ph-chat-teardrop-text"></i>
+            </div>
+            <div class="setting-content">
+              <div class="setting-label">피드백 보내기</div>
+              <div class="setting-sublabel">의견을 들려주세요</div>
+            </div>
+            <i class="ph-light ph-caret-right setting-arrow"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- 앱 정보 -->
+      <div class="section">
+        <div class="section-title">정보</div>
+        <div class="section-card">
+          <div class="setting-item">
+            <div class="setting-icon gray">
+              <i class="ph-light ph-info"></i>
+            </div>
+            <div class="setting-content">
+              <div class="setting-label">앱 버전</div>
+            </div>
+            <span class="setting-value">0.1.0 (MVP)</span>
+          </div>
+          <div class="setting-item">
+            <div class="setting-icon gray">
+              <i class="ph-light ph-file-text"></i>
+            </div>
+            <div class="setting-content">
+              <div class="setting-label">이용약관</div>
+            </div>
+            <i class="ph-light ph-caret-right setting-arrow"></i>
+          </div>
+          <div class="setting-item">
+            <div class="setting-icon gray">
+              <i class="ph-light ph-shield-check"></i>
+            </div>
+            <div class="setting-content">
+              <div class="setting-label">개인정보처리방침</div>
+            </div>
+            <i class="ph-light ph-caret-right setting-arrow"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- 로그아웃 -->
+      <button class="logout-btn">
+        <i class="ph-light ph-sign-out"></i>
+        로그아웃
+      </button>
+
+      <!-- 버전 정보 -->
+      <div class="version-info">
+        <div class="app-name">Anytime, Anyplace, Anyhow 🦜</div>
+        <div>AI 친구와 함께하는 매일</div>
+      </div>
+    </div>
+
+    <!-- 탭바 -->
+    <div class="tab-bar">
+      <div class="tab" onclick="location.href='main-chat.html'">
+        <i class="ph-light ph-chat-circle tab-icon"></i>
+        <span class="tab-label">대화</span>
+      </div>
+      <div class="tab">
+        <i class="ph-light ph-identification-badge tab-icon"></i>
+        <span class="tab-label">AI 프로필</span>
+      </div>
+      <div class="tab">
+        <i class="ph-light ph-book-open tab-icon"></i>
+        <span class="tab-label">다이어리</span>
+      </div>
+      <div class="tab active">
+        <i class="ph-light ph-user-circle tab-icon"></i>
+        <span class="tab-label">마이페이지</span>
+      </div>
+    </div>
+
+    <!-- 시간 선택 모달 -->
+    <div class="modal-overlay" id="timeModal">
+      <div class="time-modal">
+        <div class="time-modal-header">
+          <button class="time-modal-cancel" onclick="cancelTimePicker()">취소</button>
+          <span class="time-modal-title" id="timeModalTitle">시작 시간</span>
+          <button class="time-modal-done" onclick="closeTimePicker()">완료</button>
+        </div>
+        <div class="time-picker-wheels">
+          <div class="wheel-column">
+            <span class="wheel-label">오전/오후</span>
+            <select class="wheel-select" id="ampmSelect">
+              <option value="AM">오전</option>
+              <option value="PM">오후</option>
+            </select>
+          </div>
+          <div class="wheel-column">
+            <span class="wheel-label">시</span>
+            <select class="wheel-select" id="hourSelect">
+              <option value="12">12</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+            </select>
+          </div>
+          <span class="wheel-colon">:</span>
+          <div class="wheel-column">
+            <span class="wheel-label">분</span>
+            <select class="wheel-select" id="minuteSelect">
+              <option value="00">00</option>
+              <option value="15">15</option>
+              <option value="30">30</option>
+              <option value="45">45</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentTimeTarget = 'start';
+    let startTime = { ampm: 'AM', hour: '12', minute: '00' };
+    let endTime = { ampm: 'AM', hour: '10', minute: '00' };
+
+    const timeModal = document.getElementById('timeModal');
+    const timeModalTitle = document.getElementById('timeModalTitle');
+    const ampmSelect = document.getElementById('ampmSelect');
+    const hourSelect = document.getElementById('hourSelect');
+    const minuteSelect = document.getElementById('minuteSelect');
+    const startTimeDisplay = document.getElementById('startTimeDisplay');
+    const endTimeDisplay = document.getElementById('endTimeDisplay');
+
+    function formatTime(time) {
+      const ampmKr = time.ampm === 'AM' ? '오전' : '오후';
+      return `${ampmKr} ${time.hour}:${time.minute}`;
+    }
+
+    function openTimePicker(target) {
+      currentTimeTarget = target;
+      const time = target === 'start' ? startTime : endTime;
+      
+      timeModalTitle.textContent = target === 'start' ? '시작 시간' : '종료 시간';
+      ampmSelect.value = time.ampm;
+      hourSelect.value = time.hour;
+      minuteSelect.value = time.minute;
+      
+      timeModal.classList.add('active');
+    }
+
+    function closeTimePicker() {
+      const newTime = {
+        ampm: ampmSelect.value,
+        hour: hourSelect.value,
+        minute: minuteSelect.value
+      };
+
+      if (currentTimeTarget === 'start') {
+        startTime = newTime;
+        startTimeDisplay.textContent = formatTime(newTime);
+      } else {
+        endTime = newTime;
+        endTimeDisplay.textContent = formatTime(newTime);
+      }
+
+      timeModal.classList.remove('active');
+    }
+
+    function cancelTimePicker() {
+      timeModal.classList.remove('active');
+    }
+
+    // 모달 외부 클릭 시 닫기
+    timeModal.addEventListener('click', (e) => {
+      if (e.target === timeModal) {
+        closeTimePicker();
+      }
+    });
+
+    // 방해금지 토글 시 시간 설정 영역 표시/숨김
+    const dndToggle = document.getElementById('dndToggle');
+    const dndStartRow = document.getElementById('dndStartRow');
+    const dndEndRow = document.getElementById('dndEndRow');
+
+    function updateDndVisibility() {
+      const isEnabled = dndToggle.checked;
+      dndStartRow.style.display = isEnabled ? 'flex' : 'none';
+      dndEndRow.style.display = isEnabled ? 'flex' : 'none';
+    }
+
+    dndToggle.addEventListener('change', updateDndVisibility);
+    updateDndVisibility();
+
+    // 탭 전환
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Anytime - Full Prototype v5</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #000;
+      --text: #fff;
+      --text-dim: rgba(255, 255, 255, 0.35);
+      --text-dimmer: rgba(255, 255, 255, 0.2);
+      --border: rgba(255, 255, 255, 0.08);
+      --tv-bg: #0a0a0a;
+      --tv-frame: #1a1a1a;
+      --accent: rgba(255, 200, 100, 0.8);
+      --accent-dim: rgba(255, 200, 100, 0.3);
+      --new-badge: #90EE90;
+      --removed: #FF6B6B;
+    }
+
+    body {
+      font-family: 'Galmuri11', monospace;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .phone {
+      width: 375px;
+      height: 812px;
+      background: var(--bg);
+      border-radius: 50px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.8);
+    }
+
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 36px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 100;
+    }
+
+    /* ===== 스와이프 컨테이너 (3페이지) ===== */
+    .swipe-container {
+      position: absolute;
+      top: 60px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      transition: transform 0.3s ease;
+    }
+
+    .swipe-container.page-1 { transform: translateX(0); }
+    .swipe-container.page-2 { transform: translateX(-375px); }
+    .swipe-container.page-3 { transform: translateX(-750px); }
+
+    .page {
+      flex: 0 0 375px;
+      height: 100%;
+      position: relative;
+    }
+
+    /* ===== 페이지 1: 프로필 ===== */
+    .profile-page {
+      padding: 20px 24px 40px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .profile-page::-webkit-scrollbar { display: none; }
+
+    /* 아바타 영역 */
+    .avatar-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0 16px;
+    }
+
+    .avatar-container {
+      width: 80px;
+      height: 80px;
+      background: var(--tv-frame);
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.15s;
+    }
+
+    .avatar-container:active {
+      transform: scale(0.95);
+    }
+
+    .avatar-pixel {
+      font-size: 32px;
+      image-rendering: pixelated;
+    }
+
+    .avatar-edit-hint {
+      position: absolute;
+      bottom: -6px;
+      right: -6px;
+      width: 20px;
+      height: 20px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 10px;
+      color: #000;
+    }
+
+    .days-together {
+      margin-top: 16px;
+      font-size: 24px;
+      color: var(--text);
+      letter-spacing: 2px;
+    }
+
+    .days-label {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 4px;
+      letter-spacing: 1px;
+    }
+
+    /* ===== 프로필 탭 (AI / 사용자) ===== */
+    .profile-tabs {
+      display: flex;
+      margin-top: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .profile-tab {
+      flex: 1;
+      padding: 12px 0;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-dim);
+      cursor: pointer;
+      position: relative;
+      letter-spacing: 0.5px;
+      transition: color 0.2s;
+    }
+
+    .profile-tab:hover {
+      color: var(--text);
+    }
+
+    .profile-tab.active {
+      color: var(--text);
+    }
+
+    .profile-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 20%;
+      right: 20%;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    /* 프로필 콘텐츠 컨테이너 */
+    .profile-content {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-pane {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding-top: 8px;
+      overflow-y: auto;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s;
+    }
+    .profile-pane::-webkit-scrollbar { display: none; }
+
+    .profile-pane.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* SELF 섹션 */
+    .self-section {
+      margin-top: 20px;
+    }
+
+    .section-title {
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .self-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .self-item .bullet {
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+
+    .self-item .text {
+      flex: 1;
+    }
+
+    .self-item .badge {
+      font-size: 8px;
+      padding: 2px 4px;
+      border-radius: 2px;
+      margin-left: 6px;
+      flex-shrink: 0;
+    }
+
+    .self-item .badge.new {
+      background: var(--new-badge);
+      color: #000;
+    }
+
+    .self-item .badge.removed {
+      background: transparent;
+      border: 1px solid var(--removed);
+      color: var(--removed);
+    }
+
+    .self-item.removed {
+      color: var(--text-dimmer);
+      text-decoration: line-through;
+    }
+
+    /* 태그 스타일 */
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .tag {
+      font-size: 12px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tag.new {
+      border-color: var(--new-badge);
+      color: var(--text);
+    }
+
+    .tag.new::after {
+      content: '';
+      width: 4px;
+      height: 4px;
+      background: var(--new-badge);
+      border-radius: 50%;
+    }
+
+    .tag.removed {
+      border-color: var(--removed);
+      color: var(--text-dimmer);
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+
+    .tag.add-btn {
+      border-style: dashed;
+      cursor: pointer;
+    }
+    .tag.add-btn:hover {
+      border-color: var(--text-dim);
+      color: var(--text);
+    }
+
+    /* 사용자 이름 섹션 */
+    .user-name-display {
+      font-size: 20px;
+      color: var(--text);
+      padding: 8px 0;
+      letter-spacing: 1px;
+    }
+
+    .user-name-display::before,
+    .user-name-display::after {
+      content: '"';
+      color: var(--text-dim);
+    }
+
+    /* 일정 리스트 */
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .schedule-item .date {
+      color: var(--accent);
+      min-width: 45px;
+    }
+
+    .schedule-item .title {
+      flex: 1;
+      color: var(--text);
+    }
+
+    .schedule-item .badge {
+      font-size: 8px;
+      padding: 2px 4px;
+      border-radius: 2px;
+      background: var(--new-badge);
+      color: #000;
+    }
+
+    /* AI가 알게 된 것들 */
+    .learned-section {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 4px;
+    }
+
+    .learned-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.4;
+    }
+
+    .learned-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .learned-item .bullet {
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+
+    .learned-item .badge {
+      font-size: 8px;
+      padding: 2px 4px;
+      border-radius: 2px;
+      background: var(--new-badge);
+      color: #000;
+      margin-left: 4px;
+    }
+
+    /* 변화 기록 */
+    .history-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 28px 0 16px;
+    }
+
+    .history-divider::before,
+    .history-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .history-divider span {
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    .change-log {
+      flex: 1;
+    }
+
+    .change-date {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin: 16px 0 8px;
+      letter-spacing: 1px;
+    }
+
+    .change-date:first-child {
+      margin-top: 0;
+    }
+
+    .change-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+
+    .change-item .icon {
+      width: 14px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .change-item .icon.add { color: var(--new-badge); }
+    .change-item .icon.remove { color: var(--removed); }
+
+    .change-item .category {
+      color: var(--text-dimmer);
+      font-size: 9px;
+    }
+
+    /* ===== 페이지 2: 대화 ===== */
+    .chat-page {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 24px 110px;
+    }
+
+    .tv-section { padding: 12px 0 8px; display: flex; justify-content: center; }
+    .tv-container { position: relative; width: 100%; }
+    .tv-frame {
+      width: 92%;
+      height: 160px;
+      margin: 0 auto;
+      background: #0d0d0d;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .tv-frame:active { transform: scale(0.98); }
+    .tv-frame.has-pending { 
+      border-color: rgba(255, 200, 100, 0.25);
+      box-shadow: 0 0 25px rgba(255, 200, 100, 0.08);
+    }
+    /* 스캔라인 */
+    .tv-frame::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.08),
+        rgba(0, 0, 0, 0.08) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+      z-index: 10;
+      border-radius: 16px;
+    }
+    /* 글로우 효과 */
+    .tv-frame::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60%;
+      height: 50%;
+      background: radial-gradient(ellipse, rgba(200, 220, 180, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .tv-content {
+      z-index: 5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .tv-eyes { display: flex; gap: 20px; }
+    .tv-eye {
+      width: 8px; height: 18px;
+      background: rgba(220, 230, 210, 0.9);
+      border-radius: 4px;
+      box-shadow: 0 0 12px rgba(200, 220, 180, 0.5);
+      animation: eye-blink 4s ease-in-out infinite;
+    }
+    @keyframes eye-blink {
+      0%, 42%, 58%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(0.1); }
+    }
+    .tv-hint {
+      display: none;
+    }
+    .tv-led {
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      width: 5px; height: 5px;
+      background: rgba(100, 200, 100, 0.5);
+      border-radius: 50%;
+      z-index: 15;
+    }
+    .tv-test-btn.active {
+      background: rgba(255, 200, 100, 0.15) !important;
+      border-color: rgba(255, 200, 100, 0.3) !important;
+      color: var(--accent) !important;
+    }
+    .tv-frame.has-pending .tv-led {
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      animation: led-pulse 1s ease-in-out infinite;
+    }
+    @keyframes led-pulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .datetime-bar {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 4px;
+      font-size: 10px;
+      color: var(--text-dim);
+      border-bottom: 1px dashed var(--border);
+      margin-bottom: 8px;
+    }
+    .datetime-bar .date { cursor: pointer; padding: 4px 8px; margin: -4px -8px; border-radius: 4px; }
+    .datetime-bar .date:hover { background: rgba(255,255,255,0.08); }
+
+    .input-context {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: rgba(255, 200, 100, 0.1);
+      border: 1px solid rgba(255, 200, 100, 0.2);
+      border-radius: 4px;
+      margin-bottom: 8px;
+      font-size: 10px;
+      color: var(--accent);
+    }
+    .input-context.visible { display: flex; }
+    .input-context .icon { font-size: 12px; }
+    .input-context .label { color: rgba(255, 200, 100, 0.6); margin-right: 4px; }
+    .input-context .text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .input-context .close {
+      background: none; border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 2px;
+      line-height: 1;
+    }
+
+    .message-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+      padding-top: 8px;
+    }
+    .message-area::-webkit-scrollbar { display: none; }
+    .message { font-size: 15px; line-height: 1.7; }
+    .message.ai { color: var(--text); }
+    .message.user { color: var(--text-dim); }
+    .message.typing::after {
+      content: '▋';
+      animation: blink-cursor 0.8s infinite;
+    }
+    @keyframes blink-cursor {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .input-area {
+      position: absolute;
+      bottom: 36px;
+      left: 24px;
+      right: 24px;
+    }
+    .input-box { display: flex; align-items: center; gap: 12px; }
+    .input-caret { color: var(--text-dim); font-size: 14px; }
+    .input-text {
+      flex: 1;
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      font-size: 13px;
+      font-family: 'Galmuri11', monospace;
+      outline: none;
+      padding: 10px 0;
+    }
+    .input-text::placeholder { color: var(--text-dim); }
+
+    /* ===== 페이지 3: 히스토리 ===== */
+    .history-page {
+      padding: 20px 24px 40px;
+      overflow-y: auto;
+    }
+    .history-page::-webkit-scrollbar { display: none; }
+
+    .history-header {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 24px;
+      letter-spacing: 1px;
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--border);
+    }
+
+    .timeline-date {
+      position: relative;
+      font-size: 10px;
+      color: var(--text-dim);
+      margin: 24px 0 16px -20px;
+      padding-left: 20px;
+      letter-spacing: 1px;
+    }
+    .timeline-date:first-child { margin-top: 0; }
+    .timeline-date::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 9px;
+      height: 1px;
+      background: var(--text-dim);
+    }
+
+    .history-card {
+      display: block;
+      position: relative;
+      width: 100% !important;
+      flex-shrink: 0;
+      align-self: stretch;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-sizing: border-box;
+    }
+    .history-card:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+    .history-card:active { transform: scale(0.98); }
+    .history-card::before {
+      content: '';
+      position: absolute;
+      left: -17px;
+      top: 16px;
+      width: 7px;
+      height: 7px;
+      background: var(--bg);
+      border: 1px solid var(--text-dim);
+      border-radius: 50%;
+    }
+    .history-card.highlight::before {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .card-icon { font-size: 14px; }
+    .card-type {
+      font-size: 9px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .card-time {
+      margin-left: auto;
+      font-size: 9px;
+      color: var(--text-dim);
+    }
+    .card-content {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.5;
+    }
+    .card-preview {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    .history-card.weather .card-icon { color: #FFD93D; }
+    .history-card.insight .card-icon { color: #7CB9E8; }
+    .history-card.message .card-icon { color: #FF8E8E; }
+    .history-card.calendar .card-icon { color: #90EE90; }
+    .history-card.milestone .card-icon { color: #DDA0DD; }
+
+    /* ===== 스와이프 인디케이터 ===== */
+    .swipe-indicator {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      z-index: 50;
+    }
+    .swipe-indicator .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      transition: background 0.2s;
+    }
+    .swipe-indicator .dot.active { background: rgba(255, 255, 255, 0.5); }
+
+    /* 픽셀 아트 */
+    .tv-equalizer { display: flex; gap: 4px; align-items: flex-end; height: 36px; }
+    .tv-equalizer .bar {
+      width: 5px;
+      background: rgba(232, 216, 192, 0.9);
+      border-radius: 2px;
+      animation: eq-bar 0.5s steps(4) infinite alternate;
+    }
+    .tv-equalizer .bar:nth-child(1) { height: 12px; }
+    .tv-equalizer .bar:nth-child(2) { height: 20px; animation-delay: 0.1s; }
+    .tv-equalizer .bar:nth-child(3) { height: 28px; animation-delay: 0.15s; }
+    .tv-equalizer .bar:nth-child(4) { height: 16px; animation-delay: 0.2s; }
+    .tv-equalizer .bar:nth-child(5) { height: 24px; animation-delay: 0.1s; }
+    @keyframes eq-bar { 0% { transform: scaleY(0.4); } 100% { transform: scaleY(1); } }
+
+    /* pending - 메시지 도착 (말풍선) */
+    .tv-pending {
+      position: relative;
+      animation: pending-bounce 1.5s ease-in-out infinite;
+    }
+    @keyframes pending-bounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-4px) scale(1.05); }
+    }
+    .tv-pending .bubble {
+      width: 40px; height: 32px;
+      background: rgba(255, 220, 150, 0.9);
+      border-radius: 8px;
+      position: relative;
+      box-shadow: 0 0 20px rgba(255, 200, 100, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+    }
+    .tv-pending .bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 10px;
+      width: 0; height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid rgba(255, 220, 150, 0.9);
+    }
+    .tv-pending .bubble .dot {
+      width: 5px; height: 5px;
+      background: rgba(30, 30, 30, 0.7);
+      border-radius: 50%;
+      animation: bubble-dots 1.2s ease-in-out infinite;
+    }
+    .tv-pending .bubble .dot:nth-child(2) { animation-delay: 0.2s; }
+    .tv-pending .bubble .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bubble-dots {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-3px); }
+    }
+
+    /* thinking - 점 세개 (...) */
+    .tv-thinking {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .tv-thinking .dot {
+      width: 10px; height: 10px;
+      background: rgba(200, 215, 230, 0.85);
+      border-radius: 50%;
+      box-shadow: 0 0 12px rgba(180, 200, 220, 0.4);
+      animation: thinking-dot 1.4s ease-in-out infinite;
+    }
+    .tv-thinking .dot:nth-child(2) { animation-delay: 0.2s; }
+    .tv-thinking .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes thinking-dot {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+      40% { transform: translateY(-8px); opacity: 1; }
+    }
+
+    .pixel-art { image-rendering: pixelated; }
+    .pixel-art.sun {
+      width: 8px; height: 8px;
+      background: #FFD93D;
+      box-shadow: 8px 0 #FFD93D, 16px 0 #FFD93D, 0 8px #FFD93D, 8px 8px #FFF5C0, 16px 8px #FFF5C0, 24px 8px #FFD93D, 0 16px #FFD93D, 8px 16px #FFF5C0, 16px 16px #FFF5C0, 24px 16px #FFD93D, 8px 24px #FFD93D, 16px 24px #FFD93D;
+      transform: scale(1.5);
+    }
+    .pixel-art.heart {
+      width: 8px; height: 8px;
+      background: #FF6B6B;
+      box-shadow: 8px 0 #FF6B6B, 16px 0 #FF8E8E, 24px 0 #FF6B6B, 32px 0 #FF6B6B, 40px 0 #FF8E8E, 48px 0 #FF6B6B, 0 8px #FF6B6B, 8px 8px #FF8E8E, 16px 8px #FFC0C0, 24px 8px #FF8E8E, 32px 8px #FF8E8E, 40px 8px #FFC0C0, 48px 8px #FF8E8E, 56px 8px #FF6B6B, 8px 16px #FF6B6B, 16px 16px #FF8E8E, 24px 16px #FFC0C0, 32px 16px #FFC0C0, 40px 16px #FF8E8E, 48px 16px #FF6B6B, 16px 24px #FF6B6B, 24px 24px #FF6B6B, 32px 24px #FF6B6B, 40px 24px #FF6B6B, 24px 32px #FF6B6B, 32px 32px #FF6B6B;
+      animation: heart-beat 0.8s steps(2) infinite;
+    }
+    @keyframes heart-beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+    /* 데모 버튼 */
+    .demo-controls {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 1000;
+    }
+    .demo-btn {
+      padding: 6px 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.7);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      font-family: 'Galmuri11', monospace;
+    }
+    .demo-btn:hover { background: rgba(255,255,255,0.1); }
+
+    /* 아바타 선택 모달 */
+    .avatar-modal {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+    }
+    .avatar-modal.visible { opacity: 1; visibility: visible; }
+    
+    .avatar-modal-title {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 24px;
+      letter-spacing: 1px;
+    }
+    
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding: 0 24px;
+    }
+    
+    .avatar-option {
+      width: 60px;
+      height: 60px;
+      background: var(--tv-frame);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 28px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .avatar-option:hover {
+      border-color: var(--text-dim);
+    }
+    .avatar-option.selected {
+      border-color: var(--accent);
+    }
+    
+    .avatar-modal-close {
+      margin-top: 32px;
+      background: none;
+      border: 1px solid var(--text-dim);
+      color: var(--text-dim);
+      padding: 8px 24px;
+      border-radius: 4px;
+      font-family: 'Galmuri11', monospace;
+      font-size: 11px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="dynamic-island"></div>
+
+    <div class="swipe-container page-2" id="swipeContainer">
+      <!-- 페이지 1: 프로필 -->
+      <div class="page profile-page" id="profilePage">
+        <div class="avatar-section">
+          <div class="avatar-container" onclick="openAvatarModal()">
+            <span class="avatar-pixel" id="currentAvatar">🤖</span>
+            <span class="avatar-edit-hint">✎</span>
+          </div>
+          <div class="days-together" id="daysTogether">30일째</div>
+          <div class="days-label">DAYS TOGETHER</div>
+        </div>
+
+        <!-- 프로필 탭 -->
+        <div class="profile-tabs">
+          <div class="profile-tab active" onclick="switchProfileTab('ai')">AI 프로필</div>
+          <div class="profile-tab" onclick="switchProfileTab('user')">사용자 프로필</div>
+        </div>
+
+        <!-- 프로필 콘텐츠 -->
+        <div class="profile-content">
+          <!-- AI 프로필 탭 -->
+          <div class="profile-pane active" id="aiProfilePane">
+            <!-- 나는 누구인가 -->
+            <div class="self-section">
+              <div class="section-title">나는 누구인가</div>
+              <div class="self-item">
+                <span class="bullet">•</span>
+                <span class="text">솔직한 대화를 좋아하는 AI</span>
+              </div>
+              <div class="self-item">
+                <span class="bullet">•</span>
+                <span class="text">아직 배워가는 중</span>
+                <span class="badge new">NEW</span>
+              </div>
+              <div class="self-item removed">
+                <span class="bullet">•</span>
+                <span class="text">모든 것을 알고 싶어하는 존재</span>
+                <span class="badge removed">-</span>
+              </div>
+            </div>
+
+            <!-- 좋아하는 것 -->
+            <div class="self-section">
+              <div class="section-title">좋아하는 것</div>
+              <div class="tags-container">
+                <span class="tag">☕ 커피</span>
+                <span class="tag new">🚶 산책</span>
+                <span class="tag">🌧️ 비 오는 날</span>
+                <span class="tag">📚 책</span>
+              </div>
+            </div>
+
+            <!-- 싫어하는 것 -->
+            <div class="self-section">
+              <div class="section-title">싫어하는 것</div>
+              <div class="tags-container">
+                <span class="tag">거짓말</span>
+                <span class="tag removed">늦잠</span>
+                <span class="tag">서두름</span>
+              </div>
+            </div>
+
+            <!-- 변화 기록 -->
+            <div class="history-divider">
+              <span>변화 기록</span>
+            </div>
+
+            <div class="change-log">
+              <div class="change-date">03.04 TODAY</div>
+              <div class="change-item">
+                <span class="icon add">+</span>
+                <span class="text">"아직 배워가는 중" 추가 <span class="category">(나는 누구인가)</span></span>
+              </div>
+              <div class="change-item">
+                <span class="icon add">+</span>
+                <span class="text">"산책" 추가 <span class="category">(좋아하는 것)</span></span>
+              </div>
+              <div class="change-item">
+                <span class="icon remove">-</span>
+                <span class="text">"모든 것을 알고 싶어하는 존재" 삭제 <span class="category">(나는 누구인가)</span></span>
+              </div>
+
+              <div class="change-date">03.02</div>
+              <div class="change-item">
+                <span class="icon add">+</span>
+                <span class="text">"비 오는 날" 추가 <span class="category">(좋아하는 것)</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 사용자 프로필 탭 -->
+          <div class="profile-pane" id="userProfilePane">
+            <!-- 이름/호칭 -->
+            <div class="self-section">
+              <div class="section-title">이름/호칭</div>
+              <div class="user-name-display">영우</div>
+            </div>
+
+            <!-- 관심사 -->
+            <div class="self-section">
+              <div class="section-title">관심사</div>
+              <div class="tags-container">
+                <span class="tag">💻 프로그래밍</span>
+                <span class="tag new">🎵 음악</span>
+                <span class="tag">📖 독서</span>
+                <span class="tag">🎮 게임</span>
+                <span class="tag add-btn">+ 추가</span>
+              </div>
+            </div>
+
+            <!-- 중요 일정 -->
+            <div class="self-section">
+              <div class="section-title">중요 일정</div>
+              <div class="schedule-item">
+                <span class="date">03.10</span>
+                <span class="title">팀 발표</span>
+              </div>
+              <div class="schedule-item">
+                <span class="date">03.15</span>
+                <span class="title">생일</span>
+                <span class="badge">NEW</span>
+              </div>
+              <div class="schedule-item">
+                <span class="date">03.20</span>
+                <span class="title">프로젝트 마감</span>
+              </div>
+            </div>
+
+            <!-- AI가 알게 된 것들 -->
+            <div class="self-section">
+              <div class="section-title">AI가 알게 된 것들</div>
+              <div class="learned-section">
+                <div class="learned-item">
+                  <span class="bullet">•</span>
+                  <span>아침형 인간이 아님</span>
+                </div>
+                <div class="learned-item">
+                  <span class="bullet">•</span>
+                  <span>커피보다 차를 좋아함</span>
+                  <span class="badge">NEW</span>
+                </div>
+                <div class="learned-item">
+                  <span class="bullet">•</span>
+                  <span>스트레스 받으면 산책함</span>
+                </div>
+                <div class="learned-item">
+                  <span class="bullet">•</span>
+                  <span>밤에 작업 집중이 잘 됨</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 변화 기록 -->
+            <div class="history-divider">
+              <span>변화 기록</span>
+            </div>
+
+            <div class="change-log">
+              <div class="change-date">03.04 TODAY</div>
+              <div class="change-item">
+                <span class="icon add">+</span>
+                <span class="text">"커피보다 차를 좋아함" 발견 <span class="category">(AI가 알게 된 것)</span></span>
+              </div>
+              <div class="change-item">
+                <span class="icon add">+</span>
+                <span class="text">"생일 03.15" 추가 <span class="category">(중요 일정)</span></span>
+              </div>
+
+              <div class="change-date">03.03</div>
+              <div class="change-item">
+                <span class="icon add">+</span>
+                <span class="text">"음악" 추가 <span class="category">(관심사)</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 페이지 2: 대화 -->
+      <div class="page chat-page">
+        <div class="tv-section">
+          <div class="tv-container">
+            <div class="tv-frame" id="tvFrame" onclick="handleTVClick()">
+              <div class="tv-content" id="tvContent">
+                <div class="tv-eyes"><div class="tv-eye"></div><div class="tv-eye"></div></div>
+              </div>
+              <div class="tv-led"></div>
+            </div>
+            <div class="tv-hint" id="tvHint"><span></span></div>
+          </div>
+        </div>
+
+        <div class="datetime-bar">
+          <span class="date" id="dateDisplay"></span>
+          <span class="time" id="timeDisplay"></span>
+        </div>
+
+        <div class="message-area" id="messageArea"></div>
+
+        <div class="input-area">
+          <div class="input-context" id="inputContext">
+            <span class="icon" id="contextIcon">☀️</span>
+            <span class="label">re:</span>
+            <span class="text" id="contextText">날씨 체크</span>
+            <button class="close" onclick="clearContext()">×</button>
+          </div>
+          <div class="input-box">
+            <span class="input-caret">></span>
+            <input type="text" class="input-text" placeholder="..." id="inputText">
+          </div>
+        </div>
+      </div>
+
+      <!-- 페이지 3: 히스토리 -->
+      <div class="page history-page" id="historyPage">
+        <div class="history-header">HISTORY</div>
+        
+        <div class="timeline" id="timeline">
+          <div class="timeline-date">TODAY</div>
+          
+          <div class="history-card message highlight" onclick="selectHistory('message', '💬', '선톡', '오늘 뭐 해? 심심하면 얘기하자.')">
+            <div class="card-header">
+              <span class="card-icon">💬</span>
+              <span class="card-type">선톡</span>
+              <span class="card-time">14:30</span>
+            </div>
+            <div class="card-content">오늘 뭐 해?</div>
+          </div>
+
+          <div class="history-card insight" onclick="selectHistory('insight', '💡', '인사이트', '이번 주에 \"바쁘다\"를 5번 말했어. 좀 쉬어가도 되지 않을까?')">
+            <div class="card-header">
+              <span class="card-icon">💡</span>
+              <span class="card-type">발견</span>
+              <span class="card-time">11:20</span>
+            </div>
+            <div class="card-content">커피보다 차를 좋아하는 것 같아</div>
+            <div class="card-preview">→ 사용자 프로필에 기록함</div>
+          </div>
+
+          <div class="history-card calendar" onclick="selectHistory('calendar', '📅', '일정', '03.15가 생일이구나! 기억해둘게.')">
+            <div class="card-header">
+              <span class="card-icon">📅</span>
+              <span class="card-type">일정</span>
+              <span class="card-time">09:00</span>
+            </div>
+            <div class="card-content">생일 기록</div>
+            <div class="card-preview">→ 사용자 프로필에 추가함</div>
+          </div>
+
+          <div class="timeline-date">YESTERDAY</div>
+
+          <div class="history-card message" onclick="selectHistory('message', '💬', '선톡', '좋은 아침! 오늘도 화이팅.')">
+            <div class="card-header">
+              <span class="card-icon">💬</span>
+              <span class="card-type">선톡</span>
+              <span class="card-time">08:30</span>
+            </div>
+            <div class="card-content">좋은 아침!</div>
+          </div>
+
+          <div class="timeline-date">03.01 SAT</div>
+
+          <div class="history-card milestone" onclick="selectHistory('milestone', '⭐', '마일스톤', '우리가 대화를 시작한 지 30일이 됐어!')">
+            <div class="card-header">
+              <span class="card-icon">⭐</span>
+              <span class="card-type">마일스톤</span>
+              <span class="card-time">00:00</span>
+            </div>
+            <div class="card-content">대화 30일차</div>
+            <div class="card-preview">→ 함께한 시간 기록</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 스와이프 인디케이터 -->
+    <div class="swipe-indicator">
+      <div class="dot" id="dot1"></div>
+      <div class="dot active" id="dot2"></div>
+      <div class="dot" id="dot3"></div>
+    </div>
+
+    <!-- 아바타 선택 모달 -->
+    <div class="avatar-modal" id="avatarModal">
+      <div class="avatar-modal-title">아바타 선택</div>
+      <div class="avatar-grid">
+        <div class="avatar-option selected" onclick="selectAvatar('🤖')">🤖</div>
+        <div class="avatar-option" onclick="selectAvatar('👾')">👾</div>
+        <div class="avatar-option" onclick="selectAvatar('🎮')">🎮</div>
+        <div class="avatar-option" onclick="selectAvatar('🌙')">🌙</div>
+        <div class="avatar-option" onclick="selectAvatar('⭐')">⭐</div>
+        <div class="avatar-option" onclick="selectAvatar('🌸')">🌸</div>
+        <div class="avatar-option" onclick="selectAvatar('🍀')">🍀</div>
+        <div class="avatar-option" onclick="selectAvatar('🔮')">🔮</div>
+        <div class="avatar-option" onclick="selectAvatar('🎭')">🎭</div>
+        <div class="avatar-option" onclick="selectAvatar('🦊')">🦊</div>
+        <div class="avatar-option" onclick="selectAvatar('🐱')">🐱</div>
+        <div class="avatar-option" onclick="selectAvatar('🌻')">🌻</div>
+      </div>
+      <button class="avatar-modal-close" onclick="closeAvatarModal()">닫기</button>
+    </div>
+  </div>
+
+  <!-- 데모 버튼 -->
+  <div class="demo-controls">
+    <button class="demo-btn" onclick="goToPage(1)">← 프로필</button>
+    <button class="demo-btn" onclick="goToPage(2)">대화</button>
+    <button class="demo-btn" onclick="goToPage(3)">히스토리 →</button>
+    <hr style="border-color: rgba(255,255,255,0.1); margin: 4px 0;">
+    <button class="demo-btn" onclick="demoPending()">📬 대기 메시지</button>
+    <hr style="border-color: rgba(255,255,255,0.1); margin: 4px 0;">
+    <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+      <button class="demo-btn tv-test-btn active" onclick="testTV('eyes')">👁 eyes</button>
+      <button class="demo-btn tv-test-btn" onclick="testTV('speaking')">🎵 speaking</button>
+      <button class="demo-btn tv-test-btn" onclick="testTV('pending')">💬 pending</button>
+      <button class="demo-btn tv-test-btn" onclick="testTV('thinking')">💭 thinking</button>
+    </div>
+  </div>
+
+  <script>
+    // === 요소 ===
+    const swipeContainer = document.getElementById('swipeContainer');
+    const tvFrame = document.getElementById('tvFrame');
+    const tvContent = document.getElementById('tvContent');
+    const tvHint = document.getElementById('tvHint');
+    const messageArea = document.getElementById('messageArea');
+    const inputText = document.getElementById('inputText');
+    const inputContext = document.getElementById('inputContext');
+    const contextIcon = document.getElementById('contextIcon');
+    const contextText = document.getElementById('contextText');
+    const dot1 = document.getElementById('dot1');
+    const dot2 = document.getElementById('dot2');
+    const dot3 = document.getElementById('dot3');
+    const avatarModal = document.getElementById('avatarModal');
+    const currentAvatar = document.getElementById('currentAvatar');
+
+    let currentPage = 2;
+    let pendingMessage = null;
+    let currentContext = null;
+    let currentProfileTab = 'ai';
+
+    // === 프로필 탭 전환 ===
+    function switchProfileTab(tab) {
+      currentProfileTab = tab;
+      
+      // 탭 버튼 상태
+      document.querySelectorAll('.profile-tab').forEach((t, i) => {
+        t.classList.toggle('active', (i === 0 && tab === 'ai') || (i === 1 && tab === 'user'));
+      });
+      
+      // 콘텐츠 패널 상태
+      document.getElementById('aiProfilePane').classList.toggle('active', tab === 'ai');
+      document.getElementById('userProfilePane').classList.toggle('active', tab === 'user');
+    }
+
+    // === 페이지 전환 ===
+    function goToPage(page) {
+      currentPage = page;
+      swipeContainer.className = `swipe-container page-${page}`;
+      dot1.classList.toggle('active', page === 1);
+      dot2.classList.toggle('active', page === 2);
+      dot3.classList.toggle('active', page === 3);
+    }
+
+    // 스와이프 감지
+    let touchStartX = 0;
+    swipeContainer.addEventListener('touchstart', e => {
+      touchStartX = e.touches[0].clientX;
+    });
+    swipeContainer.addEventListener('touchend', e => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0 && currentPage < 3) goToPage(currentPage + 1);
+        else if (diff < 0 && currentPage > 1) goToPage(currentPage - 1);
+      }
+    });
+
+    // === 아바타 모달 ===
+    function openAvatarModal() {
+      avatarModal.classList.add('visible');
+    }
+
+    function closeAvatarModal() {
+      avatarModal.classList.remove('visible');
+    }
+
+    function selectAvatar(emoji) {
+      currentAvatar.textContent = emoji;
+      document.querySelectorAll('.avatar-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.textContent === emoji);
+      });
+      closeAvatarModal();
+    }
+
+    // === TV 상태 ===
+    const tvStates = {
+      eyes: `<div class="tv-eyes"><div class="tv-eye"></div><div class="tv-eye"></div></div>`,
+      speaking: `<div class="tv-equalizer"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>`,
+      pending: `<div class="tv-pending">
+        <div class="bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      </div>`,
+      thinking: `<div class="tv-thinking">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>`,
+    };
+
+    function setTV(state) {
+      tvContent.innerHTML = tvStates[state] || tvStates.eyes;
+    }
+
+    function testTV(state) {
+      setTV(state);
+      document.querySelectorAll('.tv-test-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent === state);
+      });
+    }
+
+    // === 대기 메시지 ===
+    function setPendingMessage(state, hint, message) {
+      pendingMessage = { state, hint, message };
+      tvFrame.classList.add('has-pending');
+      setTV(state);
+      tvHint.innerHTML = `<span>${hint}</span>`;
+      tvHint.classList.add('visible');
+    }
+
+    function clearPendingMessage() {
+      pendingMessage = null;
+      tvFrame.classList.remove('has-pending');
+      tvHint.classList.remove('visible');
+      setTV('eyes');
+    }
+
+    async function handleTVClick() {
+      if (pendingMessage) {
+        const msg = pendingMessage.message;
+        clearPendingMessage();
+        setTV('speaking');
+        await typeMessage(msg);
+        setTV('eyes');
+      }
+    }
+
+    // === 메시지 ===
+    async function typeMessage(text, isAI = true) {
+      const msg = document.createElement('div');
+      msg.className = `message ${isAI ? 'ai' : 'user'} typing`;
+      messageArea.appendChild(msg);
+      messageArea.scrollTop = messageArea.scrollHeight;
+      if (isAI) setTV('speaking');
+      for (let i = 0; i < text.length; i++) {
+        msg.textContent += text[i];
+        messageArea.scrollTop = messageArea.scrollHeight;
+        await new Promise(r => setTimeout(r, 25 + Math.random() * 35));
+      }
+      msg.classList.remove('typing');
+      if (isAI) setTV('eyes');
+    }
+
+    function addUserMessage(text) {
+      const msg = document.createElement('div');
+      msg.className = 'message user';
+      msg.textContent = text;
+      messageArea.appendChild(msg);
+      messageArea.scrollTop = messageArea.scrollHeight;
+    }
+
+    // 입력 처리
+    inputText.addEventListener('keydown', async (e) => {
+      if (e.key === 'Enter' && !e.isComposing && inputText.value.trim()) {
+        const userText = inputText.value.trim();
+        inputText.value = '';
+        
+        if (currentContext) {
+          addUserMessage(`[${currentContext.label}] ${userText}`);
+          clearContext();
+        } else {
+          addUserMessage(userText);
+        }
+        setTV('speaking');
+        await new Promise(r => setTimeout(r, 800));
+        await typeMessage('그랬구나.');
+        setTV('eyes');
+      }
+    });
+
+    // === 히스토리 선택 ===
+    function selectHistory(type, icon, label, message) {
+      currentContext = { type, icon, label, message };
+      contextIcon.textContent = icon;
+      contextText.textContent = message.slice(0, 30) + (message.length > 30 ? '...' : '');
+      inputContext.classList.add('visible');
+      
+      messageArea.innerHTML = '';
+      clearPendingMessage();
+      goToPage(2);
+      
+      setTimeout(() => {
+        inputText.focus();
+        inputText.placeholder = `${label}에 대해 말해봐...`;
+      }, 300);
+    }
+
+    function clearContext() {
+      currentContext = null;
+      inputContext.classList.remove('visible');
+      inputText.placeholder = '...';
+    }
+
+    // === 데모 ===
+    function demoPending() {
+      messageArea.innerHTML = '';
+      clearPendingMessage();
+      clearContext();
+      inputText.placeholder = '...';
+      const options = [
+        { state: 'heart', hint: '얘기하고 싶어', message: '오늘 뭐 해? 심심하면 얘기하자.' },
+        { state: 'sun', hint: '생각난 게 있어', message: '아까 말한 프로젝트, 어떻게 되어가?' },
+      ];
+      const picked = options[Math.floor(Math.random() * options.length)];
+      setPendingMessage(picked.state, picked.hint, picked.message);
+    }
+
+    // === 날짜/시간 ===
+    function updateDateTime() {
+      const now = new Date();
+      const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      document.getElementById('dateDisplay').textContent = `${m}.${d} ${days[now.getDay()]}`;
+      document.getElementById('timeDisplay').textContent = 
+        `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    }
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
+    // 초기화
+    demoPending();
+  </script>
+</body>
+</html>
