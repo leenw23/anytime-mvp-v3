@@ -111,7 +111,7 @@ serve(async (req) => {
     if (!message?.trim()) throw new Error('Message is required');
     
     const isOnboarding = mode === 'onboarding';
-    const totalTurns = 15;
+    const totalTurns = 10;
 
     // 3. Get companion
     let { data: companion } = await supabaseAdmin

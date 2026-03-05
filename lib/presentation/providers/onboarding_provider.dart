@@ -10,7 +10,7 @@ import 'auth_provider.dart';
 import 'sse_provider.dart';
 import 'tv_state_provider.dart';
 
-const int onboardingTotalTurns = 15;
+const int onboardingTotalTurns = 10;
 
 class OnboardingState {
   final List<Message> messages;
