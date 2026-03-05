@@ -38,11 +38,6 @@ class _ChatInputState extends State<ChatInput> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        border: Border(
-          top: BorderSide(color: AppColors.border, width: 1),
-        ),
-      ),
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.pageHorizontal,
         vertical: 12,
@@ -54,9 +49,10 @@ class _ChatInputState extends State<ChatInput> {
             '>',
             style: AppTypography.input.copyWith(
               color: AppColors.textDim,
+              fontSize: 14,
             ),
           ),
-          const SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: 12),
           Expanded(
             child: TextField(
               controller: _controller,

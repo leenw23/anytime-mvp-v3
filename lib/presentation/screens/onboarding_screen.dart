@@ -83,6 +83,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Widget build(BuildContext context) {
     final onboardingState = ref.watch(onboardingProvider);
 
+    // Auto-scroll when streaming or new messages arrive
+    ref.listen<OnboardingState>(onboardingProvider, (prev, next) {
+      if (prev?.streamingContent != next.streamingContent ||
+          prev?.messages.length != next.messages.length) {
+        _scrollToBottom();
+      }
+    });
+
     // Show modal when completed
     ref.listen<OnboardingState>(onboardingProvider, (prev, next) {
       if (prev?.isCompleted != true && next.isCompleted) {

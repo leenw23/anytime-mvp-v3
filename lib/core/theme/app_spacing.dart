@@ -14,7 +14,7 @@ class AppSpacing {
   static const double xxxl = 64.0;
 
   // Page Padding
-  static const double pageHorizontal = 20.0;
+  static const double pageHorizontal = 24.0;
   static const double pageTop = 16.0;
   static const double pageBottom = 24.0;
 

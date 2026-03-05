@@ -53,6 +53,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget build(BuildContext context) {
     final chatState = ref.watch(chatProvider);
 
+    // Auto-scroll when streaming or new messages arrive
+    ref.listen<ChatState>(chatProvider, (prev, next) {
+      if (prev?.streamingContent != next.streamingContent ||
+          prev?.messages.length != next.messages.length) {
+        _scrollToBottom();
+      }
+    });
+
     // Combine real messages with streaming message
     final displayMessages = [
       ...chatState.messages,
@@ -67,21 +75,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ),
     ];
 
-    return Column(
-      children: [
-        const SizedBox(height: 12),
-        const TvWidget(),
-        const SizedBox(height: AppSpacing.sm),
-        Expanded(
-          child: MessageList(
-            messages: displayMessages,
-            scrollController: _scrollController,
+    return SafeArea(
+      child: Column(
+        children: [
+          const SizedBox(height: 12),
+          const TvWidget(),
+          const SizedBox(height: AppSpacing.sm),
+          Expanded(
+            child: MessageList(
+              messages: displayMessages,
+              scrollController: _scrollController,
+            ),
           ),
-        ),
-        ChatInput(
-          onSend: _handleSend,
-        ),
-      ],
+          ChatInput(
+            onSend: _handleSend,
+          ),
+        ],
+      ),
     );
   }
 }
