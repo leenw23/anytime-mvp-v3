@@ -3,44 +3,53 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../../core/theme/theme.dart';
 
-/// DateTime separator bar shown in chat messages
-///
-/// Displays formatted date/time: "3월 5일 수요일 오후 2:30" format
 class DateTimeBar extends StatelessWidget {
   final DateTime dateTime;
 
   const DateTimeBar({super.key, required this.dateTime});
 
   String _formattedDate() {
-    // Format: "3월 5일 수요일 오후 2:30"
     try {
-      final formatter = DateFormat('M월 d일 EEEE a h:mm', 'ko');
-      return formatter.format(dateTime);
+      final dayFormat = DateFormat('MM.dd', 'ko');
+      final dayOfWeek = DateFormat('E', 'en').format(dateTime).toUpperCase();
+      return '${dayFormat.format(dateTime)} $dayOfWeek';
     } catch (_) {
-      // Fallback if locale not initialized
-      return dateTime.toString();
+      return '${dateTime.month.toString().padLeft(2, '0')}.${dateTime.day.toString().padLeft(2, '0')}';
+    }
+  }
+
+  String _formattedTime() {
+    try {
+      return DateFormat('HH:mm').format(dateTime);
+    } catch (_) {
+      return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: CustomPaint(
-        painter: _DashedBottomBorderPainter(),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            _formattedDate(),
-            style: AppTypography.dateTime,
-          ),
+    return CustomPaint(
+      painter: _DashedBottomBorderPainter(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              _formattedDate(),
+              style: AppTypography.dateTime,
+            ),
+            Text(
+              _formattedTime(),
+              style: AppTypography.dateTime,
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-/// Paints a dashed line along the bottom of its child
 class _DashedBottomBorderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -68,5 +77,4 @@ class _DashedBottomBorderPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// Initialize Korean locale — call once at app startup, e.g. in main()
 Future<void> initKoreanLocale() => initializeDateFormatting('ko');

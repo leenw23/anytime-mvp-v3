@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../core/theme/theme.dart';
 import '../../data/models/message.dart';
 import 'message_bubble.dart';
-// import 'date_time_bar.dart'; // TODO: uncomment when date_time_bar.dart is available
 
 class MessageList extends StatelessWidget {
   final List<Message> messages;
@@ -18,8 +17,10 @@ class MessageList extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.builder(
       controller: scrollController,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.pageHorizontal,
+      padding: const EdgeInsets.only(
+        left: AppSpacing.pageHorizontal,
+        right: AppSpacing.pageHorizontal,
+        top: AppSpacing.md, // 16px top padding to match prototype gap
       ),
       itemCount: messages.length,
       itemBuilder: (context, index) {

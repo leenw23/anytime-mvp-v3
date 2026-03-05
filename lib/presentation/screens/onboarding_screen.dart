@@ -7,6 +7,7 @@ import '../providers/onboarding_provider.dart';
 import '../providers/profile_provider.dart';
 import '../widgets/chat_input.dart';
 import '../widgets/message_list.dart';
+import '../widgets/date_time_bar.dart';
 import '../widgets/tv_widget.dart';
 import 'home_screen.dart';
 
@@ -117,18 +118,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Turn indicator
-            _buildTurnIndicator(onboardingState.turnCount),
-            const SizedBox(height: 4),
+            const SizedBox(height: 20),
             const TvWidget(),
             const SizedBox(height: AppSpacing.sm),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontal),
+              child: DateTimeBar(dateTime: DateTime.now()),
+            ),
             Expanded(
-              child: displayMessages.isEmpty
-                  ? _buildWelcomeHint()
-                  : MessageList(
-                      messages: displayMessages,
-                      scrollController: _scrollController,
-                    ),
+              child: MessageList(
+                messages: displayMessages,
+                scrollController: _scrollController,
+              ),
             ),
             ChatInput(
               onSend: _handleSend,
@@ -143,66 +144,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 
-  Widget _buildTurnIndicator(int turnCount) {
-    final remaining = onboardingTotalTurns - turnCount;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontal),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColors.tvBackground,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Text(
-              turnCount == 0
-                  ? '첫 만남'
-                  : remaining > 0
-                      ? '$remaining턴 남음'
-                      : '마무리 중...',
-              style: AppTypography.caption.copyWith(
-                color: AppColors.textDim,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWelcomeHint() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xxl),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              '👋',
-              style: const TextStyle(fontSize: 48),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              '새로운 친구가 기다리고 있어요',
-              style: AppTypography.body.copyWith(
-                color: AppColors.textDim,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              '먼저 인사해보세요',
-              style: AppTypography.bodySecondary,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _OnboardingCompleteModal extends ConsumerWidget {

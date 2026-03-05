@@ -5,6 +5,7 @@ import '../../data/models/message.dart';
 import '../providers/chat_provider.dart';
 import '../widgets/chat_input.dart';
 import '../widgets/message_list.dart';
+import '../widgets/date_time_bar.dart';
 import '../widgets/tv_widget.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -78,9 +79,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return SafeArea(
       child: Column(
         children: [
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           const TvWidget(),
           const SizedBox(height: AppSpacing.sm),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontal),
+            child: DateTimeBar(dateTime: DateTime.now()),
+          ),
           Expanded(
             child: MessageList(
               messages: displayMessages,

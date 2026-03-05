@@ -25,7 +25,7 @@ class TvWidget extends ConsumerWidget {
             decoration: BoxDecoration(
               color: const Color(0xFF0D0D0D),
               border: Border.all(
-                color: const Color(0x0FFFFFFF), // rgba(255,255,255,0.06)
+                color: const Color(0x40FFC864), // rgba(255, 200, 100, 0.25)
                 width: AppSpacing.tvBorderWidth,
               ),
               borderRadius: BorderRadius.circular(AppSpacing.tvBorderRadius),
